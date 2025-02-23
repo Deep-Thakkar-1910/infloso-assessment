@@ -5,6 +5,7 @@ import Home from "./pages/Home/Home";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { ThemeProvider } from "./providers";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ResetPassword from "./pages/ResetPassword/ResetPassword";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         </div>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/resetPassword" element={<ResetPassword />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>

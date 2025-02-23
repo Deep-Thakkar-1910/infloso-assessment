@@ -27,7 +27,7 @@ import {
   type SignUpValues,
 } from "@/lib/auth-schema";
 import { Checkbox } from "../ui/checkbox";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "@/axios/axios";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -186,7 +186,13 @@ export function AuthForm() {
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full">
+                    <Button
+                      asChild
+                      className="w-full bg-zinc-800 text-sky-500 dark:text-sky-400 dark:bg-grey-100 cursor-pointer hover:dark:bg-grey-100 hover:bg-zinc-800"
+                    >
+                      <Link to={"/resetPassword"}>Reset Password</Link>
+                    </Button>
+                    <Button type="submit" className="w-full mt-2">
                       Login
                     </Button>
                   </form>

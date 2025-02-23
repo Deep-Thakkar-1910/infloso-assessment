@@ -4,6 +4,8 @@ import { db } from "../lib/prisma";
 import { signUpSchema, signInSchema } from "../validators/authSchema";
 import { signJWT } from "../lib/jwtHelper";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { userInfo } from "os";
+import { error } from "console";
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 export const signup = async (req: Request, res: Response) => {
@@ -109,6 +111,62 @@ export const login = async (req: Request, res: Response) => {
       .json({ success: true, message: "Signed in successfully" });
   } catch (error) {
     res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    // extracting the required thing from body
+    const { email, password, confirmPassword } = req.body;
+
+    //validating presence of email and password.
+    if (!email || !password) {
+      return res.status(400).json({
+        succes: false,
+        error: "Please provide an email and password.",
+      });
+    }
+
+    // validating the payload.
+    const parsed = signUpSchema.safeParse({
+      email,
+      password,
+      confirmPassword,
+    });
+
+    // return error if payload doesn't satisfy required checks
+    if (!parsed.success)
+      return res
+        .status(400)
+        .json({ success: false, error: "Please provide valid input data" });
+
+    //finding the user first
+    const uniqueUser = await db.user.findUnique({
+      where: { email },
+    });
+
+    if (!uniqueUser) {
+      // if user is not found return an error
+      return res.status(404).json({ success: false, error: "User Not Found!" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // updating the user passwords
+    await db.user.update({
+      where: { email },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    res
+      .status(200)
+      .json({ success: true, message: "Your password has been reset" });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal Server Error" });
   }
 };
 
