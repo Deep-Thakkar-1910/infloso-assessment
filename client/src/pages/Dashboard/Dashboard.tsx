@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { AxiosError } from "axios";
 import { Suspense, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface AccountData {
@@ -36,11 +36,10 @@ const Dashboard = () => {
     fectchAccountData();
     if (!isAuthenticated)
       toast.warning("Your session has expired.", {
-        action: (
-          <Button asChild variant={"outline"} size={"sm"}>
-            <Link to={"/"}>Login</Link>
-          </Button>
-        ),
+        action: {
+          label: "Login Again",
+          onClick: () => navigate("/"),
+        },
       });
   }, [setAccountData, setIsAuthenticated, navigate, isAuthenticated]);
 

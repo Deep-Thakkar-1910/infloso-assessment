@@ -95,6 +95,14 @@ export function AuthForm() {
       if (response.data.success) {
         signInForm.setValue("email", data.email);
         setActiveTab("signin");
+        toast.success(`${response.data.message}!`, {
+          action: {
+            label: "Check Email.",
+            onClick: () =>
+              toast.info("This was just a simulation of email being sent."),
+          },
+        });
+        signUpForm.reset();
       }
     } catch (err) {
       if (err instanceof AxiosError) {
