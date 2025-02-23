@@ -9,7 +9,7 @@ const COOKIE_MAX_AGE = 30 * 24 * 60 * 60 * 1000; // 30 days
 export const signup = async (req: Request, res: Response) => {
   try {
     // extracting the required thing from body
-    const { name, email, password, confirmPassword } = req.body;
+    const { email, password, confirmPassword } = req.body;
 
     //validating presence of email and password.
     if (!email || !password) {
@@ -21,7 +21,6 @@ export const signup = async (req: Request, res: Response) => {
 
     // validating the payload.
     const parsed = signUpSchema.safeParse({
-      name,
       email,
       password,
       confirmPassword,
@@ -37,7 +36,6 @@ export const signup = async (req: Request, res: Response) => {
 
     const user = await db.user.create({
       data: {
-        name,
         email,
         password: hashedPassword,
       },
@@ -66,16 +64,19 @@ export const login = async (req: Request, res: Response) => {
     const { email, password, rememberMe } = req.body;
     const validatedData = signInSchema.safeParse(req.body);
 
+    // return error if payload doesn't satisfy required checks
     if (!validatedData.success) {
       return res
         .status(400)
         .json({ success: false, error: "Provide valid inputs" });
     }
 
+    // checking if user exists
     const user = await db.user.findUnique({
       where: { email },
     });
 
+    // return error if user doesn't exist
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -83,24 +84,25 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
+    // bcrypt hash validation
     const isValidPassword = await bcrypt.compare(password, user.password);
 
+    // return error if password is invalid
     if (!isValidPassword) {
       return res
         .status(401)
         .json({ success: false, error: "Invalid credentials!" });
     }
 
+    // generate and send JWT token through cookie
     const token = signJWT(email, user.id);
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production", // set to true in production using env(for https)
+      sameSite: "lax",
       maxAge: rememberMe ? COOKIE_MAX_AGE : undefined,
     });
-
-    console.log("HERE???????");
 
     return res
       .status(200)
@@ -110,7 +112,8 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const signout = (_: Request, res: Response) => {
+export const signout = (req: Request, res: Response) => {
+  // clearing the cookie to signout the user
   res.clearCookie("token");
   res.status(200).json({ success: true, message: "Signed out successfully" });
 };

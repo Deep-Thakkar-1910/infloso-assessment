@@ -4,11 +4,13 @@ import { db } from "../lib/prisma";
 
 export const dashboardData = async (req: Request, res: Response) => {
   try {
+    // getting the userId from the request object
     const { userId } = req;
     const user = await db.user.findUnique({
       where: { id: userId },
     });
 
+    // return error if user not found
     if (!user)
       return res.status(404).json({ success: false, error: "User Not Found" });
 
