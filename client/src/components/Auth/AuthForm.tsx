@@ -38,6 +38,8 @@ export function AuthForm() {
   const [activeTab, setActiveTab] = useState<string>("signin");
   const [showSignInPassword, setShowSignInPassword] = useState<boolean>(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState<boolean>(false);
+  const [showSignUpPassword2, setShowSignUpPassword2] =
+    useState<boolean>(false);
 
   const navigate = useNavigate();
   const { setIsAuthenticated } = useAuth();
@@ -226,8 +228,22 @@ export function AuthForm() {
                         <FormItem className="relative">
                           <FormLabel>Password</FormLabel>
                           <FormControl>
-                            <Input {...field} type="password" />
+                            <Input
+                              {...field}
+                              type={showSignUpPassword2 ? "text" : "password"}
+                            />
                           </FormControl>
+                          {showSignUpPassword2 ? (
+                            <EyeClosedIcon
+                              onClick={() => setShowSignUpPassword2(false)}
+                              className="absolute right-1 top-8 cursor-pointer"
+                            />
+                          ) : (
+                            <EyeIcon
+                              onClick={() => setShowSignUpPassword2(true)}
+                              className="absolute right-1 top-8 cursor-pointer"
+                            />
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
